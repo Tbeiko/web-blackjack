@@ -1,0 +1,13 @@
+form#hit_form {
+  float: left;
+  margin-right: 10px;
+}
+
+form#stay_form {
+}
+
+.card {
+  margin-right:30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}

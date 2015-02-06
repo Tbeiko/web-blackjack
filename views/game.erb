@@ -1,0 +1,42 @@
+<h1>Blackjack!</h1>
+  
+<p>Welcome <%= session[:player_name] %> !</p>
+
+<p>You have <%= session[:total_cash] %>$ .</p>
+
+<div class = 'well'>
+  <h4>Dealer's cards:</h4>
+    <% session[:dealer_cards].each do |card|%>
+      <img class='card' src="/images/cards/<%=to_image(card)%>.jpg"/>
+    <% end %>
+  
+
+
+  <p>The Dealer's total is <strong><%= calculate_total(session[:dealer_cards]) %></strong></p>
+</div>
+
+<% if @dealer_turn %>
+  <form action='/game/dealer' method='post'>
+    <input type='submit' value="See Dealer's next card !" class ='btn'>
+  </form>
+<% end %>
+
+<div class = 'well'>
+
+  <h4>Your cards:</h4>
+    <% session[:player_cards].each do |card|%>
+      <img class='card' src="/images/cards/<%=to_image(card)%>.jpg"/>
+    <% end %>
+
+
+  <p>Your total is <strong><%= calculate_total(session[:player_cards]) %></strong></p>
+</div>
+<% if @hit_or_stay_displayed %>
+  <h4>Do you want to hit or stay ?</h4>
+  <form id='hit_form' action='/game/hit' method='post'>
+    <input type="submit" value="Hit" class="btn btn-inverse" >
+  </form>
+  <form id='stay_form' action='/game/stay' method='post'>
+    <input type="submit" value="Stay" class="btn btn-inverse">
+  </form>
+<% end %>
