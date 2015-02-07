@@ -1,21 +1,38 @@
-<h1>Blackjack!</h1>
-  
-<p>Welcome <%= session[:player_name] %> !</p>
+<h1>Blackjack</h1>
 
-<p>You have <%= session[:total_cash] %>$ .</p>
+<% if @play_again_displayed %>
+  <h4>Play Again ?</h4>
+  <form id="play_again" action='/game' method='get'>
+    <input type='submit' value="Yes" class ='btn btn-inverse'>
+  </form>
+  <form action='/goodbye' method='get'>
+    <input type='submit' value="No" class ='btn btn-inverse'>
+  </form>
+<% end %>
+
+<p>Welcome <%= session[:player_name] %>, you have <strong><%= session[:total_cash] %>$</strong>.</p>
 
 <div class = 'well'>
   <h4>Dealer's cards:</h4>
-    <% session[:dealer_cards].each do |card|%>
-      <img class='card' src="/images/cards/<%=to_image(card)%>.jpg"/>
+    <% if session[:turn] == "player" %>
+      <img class='card' src="/images/cards/<%=to_image(session[:dealer_cards][1])%>.jpg"/>
+      <img class='card' src="/images/cards/cover.jpg"/>
+    <% else %>
+      <% session[:dealer_cards].each do |card|%>
+        <img class='card' src="/images/cards/<%=to_image(card)%>.jpg"/>
+      <% end %>
     <% end %>
   
-
-
-  <p>The Dealer's total is <strong><%= calculate_total(session[:dealer_cards]) %></strong></p>
+  <% if session[:turn] == "dealer" || session[:turn] == "game_over"%>
+   <p>The dealer's total is <strong><%= calculate_total(session[:dealer_cards]) %></strong>
+    <% unless @play_again_displayed %>
+      The dealer will <strong>hit</strong>.
+    <% end %>
+   </p>
+  <% end %>
 </div>
 
-<% if @dealer_turn %>
+<% if session[:turn] == "dealer" %>
   <form action='/game/dealer' method='post'>
     <input type='submit' value="See Dealer's next card !" class ='btn'>
   </form>
@@ -28,7 +45,7 @@
       <img class='card' src="/images/cards/<%=to_image(card)%>.jpg"/>
     <% end %>
 
-
+<!-- If you want to hide the player's total, comment following line -->
   <p>Your total is <strong><%= calculate_total(session[:player_cards]) %></strong></p>
 </div>
 <% if @hit_or_stay_displayed %>

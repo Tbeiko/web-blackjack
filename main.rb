@@ -6,6 +6,7 @@ use Rack::Session::Cookie, :key => 'rack.session',
                            :path => '/',
                            :secret => 'live_life_abroad' 
 
+BLACKJACK_AMOUNT = 21
 
 helpers do 
  
@@ -23,7 +24,7 @@ helpers do
 
     # Correct for aces
     arr.select{|element| element == "ACE"}.count.times do
-      break if total <= 21
+      break if total <= BLACKJACK_AMOUNT
       total -= 10
     end
 
@@ -32,6 +33,20 @@ helpers do
 
   def to_image(card)
    card[0].downcase+"_"+card[1].to_s
+  end
+
+  def winner!(msg)
+    @success = "<strong>You won!</strong> #{msg}"
+    @hit_or_stay_displayed = false
+    @play_again_displayed  = true
+    session[:turn]         = "game_over"
+  end
+
+  def loser!(msg)
+    @error = "<strong>You lost!</strong> #{msg}"
+    @hit_or_stay_displayed = false
+    @play_again_displayed  = true
+    session[:turn]         = "game_over"
   end
 
 end
@@ -72,6 +87,7 @@ post '/bet' do
 end
 
 get '/game' do 
+  session[:turn] = "player"
     SUITS = ['HEARTS', 'DIAMONDS', 'SPADES', 'CLUBS']
     CARDS = ['ACE', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'JACK', 'QUEEN', 'KING']
     # deck 
@@ -85,9 +101,8 @@ get '/game' do
     session[:dealer_cards] << session[:deck].pop
     session[:player_cards] << session[:deck].pop
 
-  if calculate_total(session[:player_cards]) == 21
-    @success = "You hit blackjack!"
-    @hit_or_stay_displayed = false
+  if calculate_total(session[:player_cards]) == BLACKJACK_AMOUNT
+    winner!("You hit blackjack!")
   end
 
   erb :game
@@ -95,16 +110,15 @@ end
 
 
 post '/game/hit' do
-  unless calculate_total(session[:player_cards]) >= 21
+  unless calculate_total(session[:player_cards]) >= BLACKJACK_AMOUNT
     session[:player_cards] << session[:deck].pop
   end
 
-  if calculate_total(session[:player_cards]) > 21
-    @error = "You bust."
-    @hit_or_stay_displayed = false
-  elsif calculate_total(session[:player_cards]) == 21
-    @success = "You hit blackjack."
-    @hit_or_stay_displayed = false
+  player_total = calculate_total(session[:player_cards]) 
+  if player_total > BLACKJACK_AMOUNT
+    loser!("You bust at #{player_total}")
+  elsif player_total == BLACKJACK_AMOUNT
+    winner!("You hit blackjack!")
   end
   erb :game
 end
@@ -112,24 +126,24 @@ end
 post '/game/stay' do
   @hit_or_stay_displayed = false
   @success = "You chose to stay."
-  @dealer_turn = true
-  erb :game
+  redirect '/game/dealer'
 end
 
 get '/game/dealer' do
+  session[:turn] = "dealer"
   @hit_or_stay_displayed = false
 
-  if calculate_total(session[:dealer_cards]) > 21
-    @success = "The Dealer Bust, you win !"
-    @dealer_turn = false
-  elsif calculate_total(session[:dealer_cards]) == 21
-    @error = "The Dealer hit Blackjack, you lose !"
-    @dealer_turn = false
-  elsif calculate_total(session[:dealer_cards]) > calculate_total(session[:player_cards])  
-    @error = "The Dealer beat you."
-    @dealer_turn = false
-  elsif calculate_total(session[:dealer_cards]) < 21
-    @dealer_turn = true
+  dealer_total = calculate_total(session[:dealer_cards])
+  player_total = calculate_total(session[:player_cards])
+
+  if dealer_total > BLACKJACK_AMOUNT
+    winner!("The dealer bust at #{dealer_total}. Your total was #{player_total}.")
+  elsif dealer_total == BLACKJACK_AMOUNT
+    loser!("The dealer hit Blackjack, you lose !")
+  elsif dealer_total > player_total
+    loser!("The dealer beat you #{dealer_total} to #{player_total}.")
+  elsif dealer_total < BLACKJACK_AMOUNT # This could also be 17 (if there were more players). For 1 on 1, better to go until bust.
+  # If there are more players, will have to add the "compare hands" option here. No need since dealer will always bust or win now.
   end
 
   erb :game
@@ -137,7 +151,7 @@ end
 
 post '/game/dealer' do 
   @hit_or_stay_displayed = false
-  unless @dealer_turn == false
+  if session[:turn] == "dealer"
     session[:dealer_cards] << session[:deck].pop
   end
 
@@ -147,4 +161,8 @@ end
 get '/reset' do 
   session.clear
   redirect '/'
+end
+
+get '/goodbye' do 
+  erb :goodbye
 end
