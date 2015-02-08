@@ -15,11 +15,11 @@
 <div class = 'well'>
   <h4>Dealer's cards:</h4>
     <% if session[:turn] == "player" %>
-      <img class='card' src="/images/cards/<%=to_image(session[:dealer_cards][1])%>.jpg"/>
+      <%= to_image(session[:dealer_cards][1]) %>
       <img class='card' src="/images/cards/cover.jpg"/>
     <% else %>
       <% session[:dealer_cards].each do |card|%>
-        <img class='card' src="/images/cards/<%=to_image(card)%>.jpg"/>
+        <%= to_image(card) %>
       <% end %>
     <% end %>
   
@@ -42,7 +42,7 @@
 
   <h4>Your cards:</h4>
     <% session[:player_cards].each do |card|%>
-      <img class='card' src="/images/cards/<%=to_image(card)%>.jpg"/>
+      <%= to_image(card) %>
     <% end %>
 
 <!-- If you want to hide the player's total, comment following line -->

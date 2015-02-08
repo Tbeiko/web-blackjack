@@ -11,19 +11,19 @@ BLACKJACK_AMOUNT = 21
 helpers do 
  
   def calculate_total(cards) # cards will appear as nested array
-    arr = cards.map{|element| element[1]}
+    cards_value = cards.map{|element| element[1]}
 
     total = 0
-    arr.each do |a|
-      if a == "ACE"
+    cards_value.each do |value|
+      if value == "ACE"
         total += 11
       else
-        total += a.to_i == 0 ? 10 : a.to_i
+        total += value.to_i == 0 ? 10 : value.to_i
       end
     end
 
     # Correct for aces
-    arr.select{|element| element == "ACE"}.count.times do
+    cards_value.select{|element| element == "ACE"}.count.times do
       break if total <= BLACKJACK_AMOUNT
       total -= 10
     end
@@ -32,21 +32,25 @@ helpers do
   end
 
   def to_image(card)
-   card[0].downcase+"_"+card[1].to_s
+   card_file_name = card[0].downcase+"_"+card[1].to_s
+
+   return "<img class='card' src='/images/cards/#{card_file_name}.jpg'/>"
+  end
+
+  def end_of_game
+    @hit_or_stay_displayed = false
+    @play_again_displayed  = true
+    session[:turn]         = "game_over"
   end
 
   def winner!(msg)
     @success = "<strong>You won!</strong> #{msg}"
-    @hit_or_stay_displayed = false
-    @play_again_displayed  = true
-    session[:turn]         = "game_over"
+    end_of_game
   end
 
   def loser!(msg)
     @error = "<strong>You lost!</strong> #{msg}"
-    @hit_or_stay_displayed = false
-    @play_again_displayed  = true
-    session[:turn]         = "game_over"
+    end_of_game
   end
 
 end
