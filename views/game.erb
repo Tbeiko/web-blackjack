@@ -2,15 +2,21 @@
 
 <% if @play_again_displayed %>
   <h4>Play Again ?</h4>
-  <form id="play_again" action='/game' method='get'>
-    <input type='submit' value="Yes" class ='btn btn-inverse'>
-  </form>
+  <% if session[:total_cash] == 0 %>
+    <form id="play_again" action='/goodbye' method='get'>
+      <input type='submit' value="Yes" class ='btn btn-inverse'>
+    </form>
+  <% else %>
+    <form id="play_again" action='/bet' method='get'>
+      <input type='submit' value="Yes" class ='btn btn-inverse'>
+    </form>
+  <% end %>
   <form action='/goodbye' method='get'>
     <input type='submit' value="No" class ='btn btn-inverse'>
   </form>
 <% end %>
 
-<p>Welcome <%= session[:player_name] %>, you have <strong><%= session[:total_cash] %>$</strong>.</p>
+<p>Welcome <%= session[:player_name] %>, you are playing for <strong><%= session[:bet_amount] %>$</strong>. You have <strong><%= session[:total_cash] %>$</strong> in total.</p>
 
 <div class = 'well'>
   <h4>Dealer's cards:</h4>

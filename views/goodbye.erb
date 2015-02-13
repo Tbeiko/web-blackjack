@@ -1,1 +1,12 @@
-<h2>Goodbye, <%= session[:player_name] %> !</h2>
+<% if session[:total_cash] == 0 %>
+
+  <h2><%= session[:player_name] %>, you're broke!</h2>
+  <p> Seems you're going to have to mortgage the house to <a href='/new_player'>play another round</a>.</p>
+
+<% else %>
+  
+  <h2>You killed it, <%= session[:player_name] %>!</h2>
+  <p>Now why don't you go ahead and book a trip to Vegas ?</p>
+  <p>Unless you want to <a href='/'>practice some more.</a></p>
+
+<% end %>

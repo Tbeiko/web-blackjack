@@ -44,15 +44,24 @@ helpers do
   end
 
   def winner!(msg)
-    @success = "<strong>You won!</strong> #{msg}"
+    win_bet
+    @success = "<strong>You won #{session[:bet_amount]}$ !</strong> #{msg}"
     end_of_game
   end
 
   def loser!(msg)
-    @error = "<strong>You lost!</strong> #{msg}"
+    lose_bet
+    @error = "<strong>You lost #{session[:bet_amount]}$ !</strong> #{msg}"
     end_of_game
   end
 
+  def win_bet
+    session[:total_cash] += session[:bet_amount]
+  end
+
+  def lose_bet
+    session[:total_cash] -= session[:bet_amount]
+  end
 end
 
 before do 
@@ -68,6 +77,7 @@ get '/' do
 end
 
 get '/new_player' do 
+  session[:total_cash] = 500
   erb :new_player
 end
 
@@ -78,6 +88,7 @@ post '/new_player' do
   end
 
   session[:player_name] = params[:player_name]
+  # If a new player is added, then his total_cash is reset to 500$
   redirect '/bet'
 end
 
@@ -86,7 +97,15 @@ get '/bet' do
 end
 
 post '/bet' do 
-  session[:total_cash] = params[:total_cash]
+  if params[:bet_amount].to_i == 0
+    @error = "Please enter your bet. No playing for free here."
+    halt erb(:bet)
+  elsif params[:bet_amount].to_i > session[:total_cash]
+    @error = "Wait a minute, you're trying to play with more than you have in the bank!"
+    halt erb(:bet)
+  end
+
+  session[:bet_amount] = params[:bet_amount].to_i
   redirect 'game'
 end
 
@@ -106,7 +125,7 @@ get '/game' do
     session[:player_cards] << session[:deck].pop
 
   if calculate_total(session[:player_cards]) == BLACKJACK_AMOUNT
-    winner!("You hit blackjack!")
+    winner!("You hit Blackjack!")
   end
 
   erb :game
@@ -120,9 +139,9 @@ post '/game/hit' do
 
   player_total = calculate_total(session[:player_cards]) 
   if player_total > BLACKJACK_AMOUNT
-    loser!("You bust at #{player_total}")
+    loser!("You bust at #{player_total}.")
   elsif player_total == BLACKJACK_AMOUNT
-    winner!("You hit blackjack!")
+    winner!("You hit Blackjack!")
   end
   erb :game
 end
@@ -139,14 +158,15 @@ get '/game/dealer' do
 
   dealer_total = calculate_total(session[:dealer_cards])
   player_total = calculate_total(session[:player_cards])
+  bet_amount   = session[:bet_amount] 
 
   if dealer_total > BLACKJACK_AMOUNT
     winner!("The dealer bust at #{dealer_total}. Your total was #{player_total}.")
   elsif dealer_total == BLACKJACK_AMOUNT
-    loser!("The dealer hit Blackjack, you lose !")
+    loser!("The dealer hit Blackjack !")
   elsif dealer_total > player_total
     loser!("The dealer beat you #{dealer_total} to #{player_total}.")
-  elsif dealer_total < BLACKJACK_AMOUNT # This could also be 17 (if there were more players). For 1 on 1, better to go until bust.
+  elsif dealer_total < 21 # This could also be 17 (if there were more players). For 1 on 1, better to go until bust.
   # If there are more players, will have to add the "compare hands" option here. No need since dealer will always bust or win now.
   end
 

@@ -1,7 +1,8 @@
-<h3> How much do you want to play with ? </h3>
-
+<h3> How much do you want to bet ? </h3>
+<p>You've got <strong><%= session[:total_cash].to_s %>$</strong> to play with.</p>
 <form action='/bet' method='post'>
-  <input type='text' name="total_cash"/>
+  <input type='text' name="bet_amount"/>
 </br>
   <input type='submit' value="Make Bet" class='btn'/>
 </form>
+
