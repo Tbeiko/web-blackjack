@@ -45,13 +45,13 @@ helpers do
 
   def winner!(msg)
     win_bet
-    @success = "<strong>You won #{session[:bet_amount]}$ !</strong> #{msg}"
+    @winner = "<strong>You won #{session[:bet_amount]}$ !</strong> #{msg}"
     end_of_game
   end
 
   def loser!(msg)
     lose_bet
-    @error = "<strong>You lost #{session[:bet_amount]}$ !</strong> #{msg}"
+    @loser = "<strong>You lost #{session[:bet_amount]}$ !</strong> #{msg}"
     end_of_game
   end
 
@@ -143,7 +143,7 @@ post '/game/hit' do
   elsif player_total == BLACKJACK_AMOUNT
     winner!("You hit Blackjack!")
   end
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/stay' do
