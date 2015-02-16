@@ -32,7 +32,7 @@ helpers do
   end
 
   def to_image(card)
-   card_file_name = card[0].downcase+"_"+card[1].to_s
+   card_file_name = card[0].downcase+"_"+card[1].to_s.downcase
 
    return "<img class='card' src='/images/cards/#{card_file_name}.jpg'/>"
   end
