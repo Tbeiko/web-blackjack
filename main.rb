@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'sinatra'
-require 'Shotgun'
+# require 'Shotgun'
 # Use this instead of Shotgun if Windows
 # require "sinatra/reloader" if development?
 
