@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'sinatra'
-require "sinatra/reloader" if development?
+require 'Shotgun'
+# Use this instead of Shotgun if Windows
+# require "sinatra/reloader" if development?
 
 use Rack::Session::Cookie, :key => 'rack.session',
                            :path => '/',

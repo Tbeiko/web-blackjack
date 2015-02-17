@@ -29,7 +29,7 @@
   <div class = 'well'>
     <h4>Dealer's cards:</h4>
       <% if session[:turn] == "player" %>
-        <%= to_image(session[:dealer_cards][1]) %>
+        <%= to_image(session[:dealer_cards][0]) %>
         <img class='card' src="/images/cards/cover.jpg"/>
       <% else %>
         <% session[:dealer_cards].each do |card|%>
